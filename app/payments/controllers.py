@@ -5,11 +5,9 @@ from app.db import db
 from loguru import logger
 from sqlalchemy import exc
 import requests
-import json
 
 module = Blueprint('payments', __name__, url_prefix='/payments')
-logger.add("app/logs/file.log")
-
+logger.add("app/logs/log.log")
 
 @module.before_request
 def before_request_func():
@@ -53,14 +51,17 @@ def pay_eur():
 
     # Использую g.shop_order_id, чтоб shop_order_id был уникальным,
     # в реальном приложении надо использовать параметр с формы
-    history = PaymentHistory(currency=currency, amount=amount, description=description, shop_order_id=g.shop_order_id)
     try:
+        history = PaymentHistory(currency=currency, amount=amount,
+                                 description=description, shop_order_id=g.shop_order_id)
         db.session.add(history)
         db.session.commit()
-    except exc.OperationalError as e:
+    except exc.IntegrityError as e:
         logger.exception('got exception on create payment_history', exc_info=True)
-        return jsonify(error=str(e), description="Payment history was not created"), 400
-
+        return jsonify(error=str(e), description="Payment history was not created, duplicate or null column"), 400
+    except exc.DataError as e:
+        logger.exception('got exception on create payment_history', exc_info=True)
+        return jsonify(error=str(e), description="Payment history was not created, wrong argument types"), 400
     return jsonify({'sign': g.sha_signature, 'shop_order_id': g.shop_order_id})
 
 
@@ -92,14 +93,17 @@ def pay_usd():
     response_data = response.json()
 
     if not response_data["error_code"]:
-        history = PaymentHistory(currency=currency, amount=amount,
-                                 description=description, shop_order_id=g.shop_order_id)
         try:
+            history = PaymentHistory(currency=currency, amount=amount,
+                                     description=description, shop_order_id=g.shop_order_id)
             db.session.add(history)
             db.session.commit()
-        except exc.OperationalError as e:
+        except exc.IntegrityError as e:
             logger.exception('got exception on create payment_history', exc_info=True)
-            return jsonify(error=str(e), description="Payment history was not created"), 400
+            return jsonify(error=str(e), description="Payment history was not created, duplicate or null column"), 400
+        except exc.DataError as e:
+            logger.exception('got exception on create payment_history', exc_info=True)
+            return jsonify(error=str(e), description="Payment history was not created, wrong argument types"), 400
     else:
         logger.error(response_data)
         return jsonify(description="Invalid payment options")
@@ -133,15 +137,19 @@ def pay_rub():
                                               "sign": g.sha_signature},
                              headers=headers)
     response_data = response.json()
-
     if not response_data["error_code"]:
-        history = PaymentHistory(currency=currency, amount=amount,
-                                 description=description, shop_order_id=g.shop_order_id)
         try:
+            history = PaymentHistory(currency=currency, amount=amount,
+                                     description=description, shop_order_id=g.shop_order_id)
             db.session.add(history)
             db.session.commit()
-        except exc.OperationalError as e:
+        except exc.IntegrityError as e:
             logger.exception('got exception on create payment_history', exc_info=True)
+            return jsonify(error=str(e), description="Payment history was not created, duplicate or null column"), 400
+        except exc.DataError as e:
+            logger.exception('got exception on create payment_history', exc_info=True)
+            return jsonify(error=str(e), description="Payment history was not created, wrong argument types"), 400
+
         return render_template("pay_rub.html", data=response_data)
     else:
         logger.error(response_data)
