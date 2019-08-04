@@ -58,8 +58,8 @@ def pay_eur():
         db.session.add(history)
         db.session.commit()
     except exc.OperationalError as e:
-        logger.error(str(e))
-        return jsonify(error=str(e), description="Payment log was not created"), 500
+        logger.exception('got exception on create payment_history', exc_info=True)
+        return jsonify(error=str(e), description="Payment history was not created"), 400
 
     return jsonify({'sign': g.sha_signature, 'shop_order_id': g.shop_order_id})
 
@@ -98,11 +98,11 @@ def pay_usd():
             db.session.add(history)
             db.session.commit()
         except exc.OperationalError as e:
-            logger.error(str(e))
-            return jsonify(error=str(e), description="Payment log was not created"), 500
+            logger.exception('got exception on create payment_history', exc_info=True)
+            return jsonify(error=str(e), description="Payment history was not created"), 400
     else:
         logger.error(response_data)
-        return jsonify(description="Неверные параметры платежа")
+        return jsonify(description="Invalid payment options")
 
     data = response_data["data"]
     return redirect(data["url"])
@@ -117,6 +117,7 @@ def pay_rub():
         shop_order_id = req_data["shop_order_id"]
         description = req_data["description"]
     except KeyError as e:
+        logger.error(str(e))
         return jsonify(error=str(e), description="Key was not specified"), 400
 
     headers = {'Content-Type': 'application/json'}
@@ -140,8 +141,8 @@ def pay_rub():
             db.session.add(history)
             db.session.commit()
         except exc.OperationalError as e:
-            logger.error(str(e))
+            logger.exception('got exception on create payment_history', exc_info=True)
         return render_template("pay_rub.html", data=response_data)
     else:
         logger.error(response_data)
-        return jsonify(description="Неверные параметры платежа")
+        return jsonify(description="Invalid payment options")
