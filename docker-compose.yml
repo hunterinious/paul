@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:11-alpine
+    command: postgres -c max_connections=300
+    environment:
+
+      PGPASSWORD: "test"
+      PGUSER: "test"
+
+      POSTGRES_PASSWORD: "test"
+      POSTGRES_USER: "test"
+      POSTGRES_DB: "db_payment"
+      POSTGRES_TEST_DB: "test_payment"
+
+    volumes:
+      - ./dbdumps:/dbdumps
+    ports:
+      - "127.0.0.1:5445:5432"

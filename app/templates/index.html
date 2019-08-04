@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script type="text/javascript" src="../static/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="../static/main.js"></script>
+    <link href='../static/main.css' rel='stylesheet' type='text/css'>
+    <link href='../static/container.css' rel='stylesheet' type='text/css'>
+
+</head>
+<body>
+    <div id="container">
+        <div id="pay-container">
+            <form name="Pay" id="pay-form" method="post" action="https://pay.piastrix.com/ru/pay" accept-charset="UTF-8">
+                <div class="form-group">
+                    <label for="currency-amount" class="cols-sm-2 control-label">Amount</label>
+                    <div class="cols-sm-10">
+                     <div class="inputs-size border">
+                         <input id="currency-amount" name="amount" type="text" class="form-control" value="10.00" placeholder="100.50"/>
+                     </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="select-currency" class="cols-sm-2 control-label">Currency</label>
+                    <div class="cols-sm-10 ">
+                     <div class="inputs-size">
+                          <select name="currency" class="form-control" id="select-currency">
+                              <option id="option-1" name="option-1" value="978">EUR</option>
+                              <option id="option-2" name="option-2" value="840">USD</option>
+                              <option id="option-3" name="option-3" value="643">RUB</option>
+                          </select>
+                     </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description-area" class="cols-sm-2 control-label">Description</label>
+                    <div class="cols-sm-10">
+                     <div class="text-area-size border">
+                          <textarea class="form-control" name="description" id="description-area" rows="10"></textarea>
+                     </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="cols-sm-10">
+                         <button type="submit" class="form-control btn btn-success btn-lg" id="submit-button" >Submit</button>
+                    </div>
+                </div>
+                 <input type="hidden" id="shop_id" name="shop_id" value="5"/>
+                 <input type="hidden" id="shop_order_id" name="shop_order_id" value="1"/>
+                 <input type="hidden" id="sign" name="sign" value=""/>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link href='../static/main.css' rel='stylesheet' type='text/css'>
+    <link href='../static/container.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+  <div id="container">
+        <div id="pay-container">
+            <form name="Pay" method="GET" id="pay-form" action="{{ data.data.url }}" accept-charset="UTF-8">
+                <input name="lang" value="ru" />
+                <div class="form-group">
+                    <label for="m_curorderid" class="cols-sm-2 control-label">m_curorderid</label>
+                    <div class="cols-sm-10">
+                     <div class="inputs-size border">
+                         <input id="m_curorderid" name="m_curorderid" type="text" class="form-control" value="{{ data.data.data.m_curorderid }}"/>
+                     </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="m_historyid" class="cols-sm-2 control-label">m_historyid</label>
+                    <div class="cols-sm-10">
+                     <div class="inputs-size border">
+                          <input id="m_historyid" name="m_historyid" type="text" class="form-control" value="{{ data.data.data.m_historyid }}"/>
+                     </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="m_historytm" class="cols-sm-2 control-label">m_historytm</label>
+                    <div class="cols-sm-10">
+                     <div class="inputs-size border">
+                         <input id="m_historytm" name="m_historytm" type="text" class="form-control" value="{{ data.data.data.m_historytm }}"/>
+                     </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="refer" class="cols-sm-2 control-label">refer</label>
+                    <div class="cols-sm-10">
+                     <div class="inputs-size border">
+                         <input id="refer" name="referer" class="form-control" value="https://payeer.com/merchant/?m_historyid={{data.data.data.m_historyid}}&m_historytm=1525080667&m_curorderid=68685634lang=ru"/>
+                     </div>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <div class="cols-sm-10">
+                         <button type="submit" class="form-control btn btn-success btn-lg" id="submit-button">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
