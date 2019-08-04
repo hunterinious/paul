@@ -1,10 +1,11 @@
 from app.db import db
 from app.payments.models import PaymentHistory
 import hashlib
+import os
 
 
 def generate_sign(data, keys):
-    secret = "SecretKey01"
+    secret = os.environ["SECRET_KEY"]
     sha_str = ""
     # Поле для уникальности shop_order_id, для тестового приложения
     test_key_to_return = ""
