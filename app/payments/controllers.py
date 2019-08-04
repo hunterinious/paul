@@ -1,5 +1,6 @@
 from flask import jsonify, request, Blueprint, render_template, redirect, g
-from app.payments.models import Payment, Log
+from app.payments.models import PaymentHistory
+from app.payments.generate_sign import generate_sign
 from app.db import db
 from loguru import logger
 from sqlalchemy import exc
@@ -27,7 +28,7 @@ def before_request_func():
             keys_required = ["payway", "amount", "currency", "shop_order_id", "shop_id"]
 
         keys_sorted = sorted(keys_required)
-        gen_sign = Payment.generate_sign(req_data, keys_sorted)
+        gen_sign = generate_sign(req_data, keys_sorted)
         g.sha_signature = gen_sign[0]
         g.shop_order_id = gen_sign[1]
 
@@ -53,9 +54,9 @@ def pay_eur():
 
     # Использую g.shop_order_id, чтоб shop_order_id был уникальным,
     # в реальном приложении надо использовать параметр с формы
-    log = Log(currency, amount, description, g.shop_order_id)
+    history = PaymentHistory(currency=currency, amount=amount, description=description, shop_order_id=g.shop_order_id)
     try:
-        db.session.add(log)
+        db.session.add(history)
         db.session.commit()
     except exc.OperationalError as e:
         # logger.add("app/logs/file_{time}.log")
@@ -94,9 +95,10 @@ def pay_usd():
     response_data = response.json()
 
     if not response_data["error_code"]:
-        log = Log(currency, amount, description, g.shop_order_id)
+        history = PaymentHistory(currency=currency, amount=amount,
+                                 description=description, shop_order_id=g.shop_order_id)
         try:
-            db.session.add(log)
+            db.session.add(history)
             db.session.commit()
         except exc.OperationalError as e:
             # logger.add("app/logs/file_{time}.log")
@@ -137,9 +139,10 @@ def pay_rub():
     response_data = response.json()
 
     if not response_data["error_code"]:
-        log = Log(currency, amount, description, g.shop_order_id)
+        history = PaymentHistory(currency=currency, amount=amount,
+                                 description=description, shop_order_id=g.shop_order_id)
         try:
-            db.session.add(log)
+            db.session.add(history)
             db.session.commit()
         except exc.OperationalError as e:
             # logger.add("app/logs/file_{time}.log")
