@@ -10,17 +10,18 @@ def generate_sign(data, keys):
     test_key_to_return = ""
     for index, key in enumerate(keys):
         if key == "shop_order_id":
-            key_for_test_app = data[key] + str(db.session.query(PaymentHistory.shop_order_id).count())
+            orders_count = db.session.query(PaymentHistory.shop_order_id).count()
+            key_for_test_app = f'{data[key]}{orders_count}'
             # Запоминаю значения поля shop_order_id, для тестового приложения
             test_key_to_return = key_for_test_app
         else:
             key_for_test_app = data[key]
         if index == len(keys) - 1:
-            sha_str = sha_str + key_for_test_app
+            sha_str += key_for_test_app
         else:
-            sha_str = sha_str + key_for_test_app + ":"
+            sha_str += key_for_test_app + ":"
 
     sha_str = sha_str + secret
 
     sha_signature = hashlib.sha256(sha_str.encode()).hexdigest()
-    return [sha_signature, test_key_to_return]
+    return sha_signature, test_key_to_return

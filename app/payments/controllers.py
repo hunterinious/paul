@@ -28,12 +28,12 @@ def before_request_func():
             keys_required = ["payway", "amount", "currency", "shop_order_id", "shop_id"]
 
         keys_sorted = sorted(keys_required)
-        gen_sign = generate_sign(req_data, keys_sorted)
-        g.sha_signature = gen_sign[0]
-        g.shop_order_id = gen_sign[1]
+        signature, order_id = generate_sign(req_data, keys_sorted)
+        g.sha_signature = signature
+        g.shop_order_id = order_id
 
 
-@module.route('/index', methods=['POST', 'GET'])
+@module.route('/index', methods=['GET'])
 def index():
     return render_template('index.html')
 
@@ -47,7 +47,6 @@ def pay_eur():
         description = req_data["description"]
         shop_order_id = req_data["shop_order_id"]
     except KeyError as e:
-        # logger.add("app/logs/file_{time}.log")
         logger.error(str(e))
         return jsonify(error=str(e), description="Key was not specified"), 400
 
@@ -59,7 +58,6 @@ def pay_eur():
         db.session.add(history)
         db.session.commit()
     except exc.OperationalError as e:
-        # logger.add("app/logs/file_{time}.log")
         logger.error(str(e))
         return jsonify(error=str(e), description="Payment log was not created"), 500
 
@@ -75,7 +73,6 @@ def pay_usd():
         description = req_data["description"]
         shop_order_id = req_data["shop_order_id"]
     except KeyError as e:
-        # logger.add("app/logs/file_{time}.log")
         logger.error(str(e))
         return jsonify(error=str(e), description="Key was not specified"), 400
 
@@ -83,13 +80,13 @@ def pay_usd():
     # Использую g.shop_order_id, чтоб shop_order_id был уникальным,
     # в реальном приложении надо использовать параметр с формы
     response = requests.post("https://core.piastrix.com/bill/create",
-                             data=json.dumps({"payer_currency": req_data["payer_currency"],
+                             json={"payer_currency": req_data["payer_currency"],
                                               "shop_amount": amount,
                                               "shop_currency": currency,
                                               "shop_id": req_data["shop_id"],
                                               "shop_order_id": g.shop_order_id,
                                               "description": description,
-                                              "sign": g.sha_signature}),
+                                              "sign": g.sha_signature},
                              headers=headers)
 
     response_data = response.json()
@@ -101,11 +98,9 @@ def pay_usd():
             db.session.add(history)
             db.session.commit()
         except exc.OperationalError as e:
-            # logger.add("app/logs/file_{time}.log")
             logger.error(str(e))
             return jsonify(error=str(e), description="Payment log was not created"), 500
     else:
-        # logger.add("app/logs/file_{time}.log")
         logger.error(response_data)
         return jsonify(description="Неверные параметры платежа")
 
@@ -128,13 +123,13 @@ def pay_rub():
     # Использую g.shop_order_id, чтоб shop_order_id был уникальным,
     # в реальном приложении надо использовать параметр с формы
     response = requests.post("https://core.piastrix.com/invoice/create",
-                             data=json.dumps({"amount": req_data["amount"],
+                             json={"amount": req_data["amount"],
                                               "currency": req_data["currency"],
                                               "payway": req_data["payway"],
                                               "shop_id": req_data["shop_id"],
                                               "shop_order_id": g.shop_order_id,
                                               "description": description,
-                                              "sign": g.sha_signature}),
+                                              "sign": g.sha_signature},
                              headers=headers)
     response_data = response.json()
 
@@ -145,10 +140,8 @@ def pay_rub():
             db.session.add(history)
             db.session.commit()
         except exc.OperationalError as e:
-            # logger.add("app/logs/file_{time}.log")
             logger.error(str(e))
         return render_template("pay_rub.html", data=response_data)
     else:
-        # logger.add("app/logs/file_{time}.log")
         logger.error(response_data)
         return jsonify(description="Неверные параметры платежа")
